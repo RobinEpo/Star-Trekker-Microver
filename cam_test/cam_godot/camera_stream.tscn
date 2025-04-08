@@ -1,0 +1,78 @@
+[gd_scene load_steps=8 format=3 uid="uid://0tvftao7t1la"]
+
+[ext_resource type="Script" uid="uid://cs5hle3dt0suh" path="res://texture_rect.gd" id="1_dpne2"]
+[ext_resource type="Script" uid="uid://c5ru1f1lmqa0o" path="res://mesh_instance_3d.gd" id="2_hpn75"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hpn75"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_nt5ew"]
+sky_material = SubResource("ProceduralSkyMaterial_hpn75")
+
+[sub_resource type="Environment" id="Environment_sxmvn"]
+background_mode = 2
+sky = SubResource("Sky_nt5ew")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_dpne2"]
+viewport_path = NodePath("SubViewport")
+
+[sub_resource type="BoxMesh" id="BoxMesh_dpne2"]
+size = Vector3(1, 1, 2)
+
+[node name="CameraStream" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -632.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_sxmvn")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch_mode = 5
+script = ExtResource("1_dpne2")
+
+[node name="Button" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 873.0
+offset_top = 258.0
+offset_right = 1106.0
+offset_bottom = 378.0
+text = "Avancer"
+
+[node name="TextureRect2" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 616.0
+offset_top = 5.0
+offset_right = 1128.0
+offset_bottom = 517.0
+texture = SubResource("ViewportTexture_dpne2")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SubViewport"]
+mesh = SubResource("BoxMesh_dpne2")
+skeleton = NodePath("../..")
+script = ExtResource("2_hpn75")
+speed = 2
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport"]
+transform = Transform3D(0.784419, 0.240449, -0.571726, 0, 0.921795, 0.387676, 0.620231, -0.304101, 0.723074, -1.15569, 0.860047, 1.71823)

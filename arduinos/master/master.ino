@@ -33,17 +33,17 @@ void read_data()
     {
       if (i < length_data_slave1)
       {
-        data_slave1[i] = Serial.read();
+        data_slave1[i] = (int)Serial.read();
         continue;
       }
 
-      if (i >= length_data_slave1 && i < length_data_slave2 + length_data_slave1)
+      if (i >= length_data_slave1 and (i < length_data_slave2 + length_data_slave1))
       {
-        data_slave2[i-length_data_slave1] = Serial.read();
+        data_slave2[i-length_data_slave1] = (int)Serial.read();
         continue;
       }
 
-      if (i >= length_data_slave2 + length_data_slave1)
+      if (i >= (length_data_slave2 + length_data_slave1))
       {
         int new_val(Serial.read());
         int j(i-length_data_slave2 - length_data_slave1);
@@ -56,22 +56,27 @@ void read_data()
 
       }      
     }
+    // for (int i(0); i < 3; i++)
+    // {
+    //   Serial.print(data_slave1[i]);
+    //   Serial.print(data_slave2[i]);
+    // }
   
   transmission_allowed = 1;
 
 }
 
 
-void sendToNano(byte address, byte data[], byte length) {
+void sendToNano(byte address, byte data[], int length) {
   Wire.beginTransmission(address);
   Wire.write(data, length);
-  Serial.print("Sending to Nano value ");
-  for (unsigned i(0); i < 3; i++)
-  {
-    Serial.print((int8_t)(*(data+i)));
-    Serial.print(" ");
-  }
-  Serial.println();
+  // Serial.print("Sending to Nano value ");
+  // for (unsigned i(0); i < 3; i++)
+  // {
+  //   Serial.print((int8_t)(*(data+i)));
+  //   Serial.print(" ");
+  // }
+  // Serial.println();
   Wire.endTransmission();
 }
 
@@ -85,6 +90,7 @@ void setup()
   Wire.begin();
 }
 
+int j(0);
 void loop()
 {
   transmission_allowed = 0;
@@ -99,7 +105,7 @@ void loop()
       sendToNano(adress_slave2, data_slave2, length_data_slave2);
       if (servo_change)
       {
-        sendServosData();
+        // sendServosData();
       }
       transmission_allowed = 0;
     }
@@ -107,19 +113,19 @@ void loop()
   delay(1);
 }
 
-void sendServosData()
-{
-  // for (unsigned i = 0; i < length_data_Servos; i++)
-  // {
-  //   board.setPWM(i, 0, angleToPulse(data_Servos[i]));
-  // }
-}
+// void sendServosData()
+// {
+//   for (unsigned i = 0; i < length_data_Servos; i++)
+//   {
+//     board.setPWM(i, 0, angleToPulse(data_Servos[i]));
+//   }
+// }
 
-int angleToPulse(int ang) {                            //gets the angle in degree and returns the pulse width  
-  int pulse = map(ang,0, 180, SERVOMIN,SERVOMAX);  // map angle of 0 to 180 to Servo min and Servo max 
-  // Serial.print("Angle: ");
-  // Serial.print(ang);
-  // Serial.print(" pulse: ");
-  // Serial.println(pulse);
-  return pulse;
-}
+// int angleToPulse(int ang) {                            //gets the angle in degree and returns the pulse width  
+//   int pulse = map(ang,0, 180, SERVOMIN,SERVOMAX);  // map angle of 0 to 180 to Servo min and Servo max 
+//   // Serial.print("Angle: ");
+//   // Serial.print(ang);
+//   // Serial.print(" pulse: ");
+//   // Serial.println(pulse);
+//   return pulse;
+// }

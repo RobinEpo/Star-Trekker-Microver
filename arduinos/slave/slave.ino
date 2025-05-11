@@ -12,8 +12,9 @@ const int BackIN1 =   (adress_slave1 == LEFT) ? 10  : 5;
 const int BackIN2 =   (adress_slave1 == LEFT) ? 11  : 3;
 
 const int length_data = 3;
-bool data_received = false;
+// bool data_received = false;
 int8_t received_data[length_data];
+int8_t abs8(int8_t in);
 
 int speed1 = 0;                           // Valeur de 0 à 255 pour la vitesse des moteur
 bool direction1 = 0;                        // 0 pour l'avant et 1 pour l'arrière
@@ -38,16 +39,22 @@ void receiveEvent(int numBytes)
   if (numBytes >= length_data)
   {
     for (unsigned i = 0; i < length_data; i++) {
-      received_data[i] = (int8_t)Wire.read();
+      received_data[i] = (int8_t)(Wire.read() - (byte)128);
+    }
+    //DEBUG
+    for (unsigned i = 0; i < length_data; i++) {
+      Serial.println(received_data[i]);
     }
     // ClearBuffer(); //safety net
-    data_received = true;
+  
+    AttributeSpeedsDir();
+    TransferSpeedsDir();
   }
 }
 
 void AttributeSpeedsDir()
 {
-  speed1 = abs(received_data[0]);
+  speed1 = abs8(received_data[0]);
   direction1 = received_data[0] < 0;
   if (speed1 == 128)
   {
@@ -55,7 +62,7 @@ void AttributeSpeedsDir()
   }
   speed1 *= 2;    // Avoir une plage de 0 à 254
 
-  speed2 = abs(received_data[1]);
+  speed2 = abs8(received_data[1]);
   direction2 = received_data[1] < 0;
   if (speed2 == 128)
   {
@@ -63,7 +70,7 @@ void AttributeSpeedsDir()
   }
   speed2 *= 2;    // Avoir une plage de 0 à 254
 
-  speed3 = abs(received_data[2]);
+  speed3 = abs8(received_data[2]);
   direction3 = received_data[2] < 0;
   if (speed3 == 128)
   {
@@ -72,10 +79,15 @@ void AttributeSpeedsDir()
   speed3 *= 2;    // Avoir une plage de 0 à 254
 }
 
+
+
 void TransferSpeedsDir()
 {
-  speed1, speed2, speed3 = abs(speed1), abs(speed2), abs(speed3);
-  if (speed1 <= 6)
+  Serial.print("Speeds = ");
+  Serial.print(speed1);
+  Serial.print(speed2);
+  Serial.println(speed3);
+  if (speed1 <= (int8_t)6)
   {
     digitalWrite(FrontIN1, LOW);
     digitalWrite(FrontIN2, LOW); 
@@ -89,7 +101,7 @@ void TransferSpeedsDir()
     analogWrite(FrontIN2, speed1);
   }
 
-  if (speed2 <= 6)
+  if (speed2 <= (int8_t)6)
   {
     digitalWrite(CentreIN1, LOW);
     digitalWrite(CentreIN2, LOW); 
@@ -103,7 +115,7 @@ void TransferSpeedsDir()
     analogWrite(CentreIN2, speed2);
   }
 
-  if (speed3 <= 6)
+  if (speed3 <= (int8_t)6)
   {
     digitalWrite(BackIN1, LOW);
     digitalWrite(BackIN2, LOW); 
@@ -122,6 +134,7 @@ void TransferSpeedsDir()
 
 void setup() 
 {
+  Serial.begin(9600);
   Wire.begin(adress_slave1);  
   Wire.onReceive(receiveEvent);
   pinMode(FrontIN1, OUTPUT);
@@ -130,15 +143,14 @@ void setup()
   pinMode(CentreIN2, OUTPUT);
   pinMode(BackIN1, OUTPUT);
   pinMode(BackIN2, OUTPUT);
+  Serial.println("Setted up");
 }
 
 void loop() 
-{
-  if (data_received)
-  {
-    AttributeSpeedsDir();
-    TransferSpeedsDir();
-  }
-  data_received = false;
-}
+{}
 
+
+int8_t abs8(int8_t in)
+{
+  return (in < 0) ? -in : in; 
+}

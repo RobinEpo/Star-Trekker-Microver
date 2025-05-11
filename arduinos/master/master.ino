@@ -6,111 +6,88 @@
 #define SERVOMIN  125 // this is the 'minimum' pulse length count (out of 4096)
 #define SERVOMAX  625 // this is the 'maximum' pulse length count (out of 4096) 
 
-const int length_data_Servos = 4;
-const int length_data_slave1 = 3;
-const int length_data_slave2 = 3;
-const int nbr_data_expected = length_data_Servos + length_data_slave1 + length_data_slave2;
+const int l_data_slv1 = 3;
+const int l_data_slv2 = 3;
+const int l_data_Serv = 4;
+const int tot_data_length = l_data_Serv + l_data_slv1 + l_data_slv2;
 
 const byte adress_slave1 = 0x01;
 const byte adress_slave2 = 0x02;
-Adafruit_PWMServoDriver board = Adafruit_PWMServoDriver(0x40);
+Adafruit_PWMServoDriver splitter = Adafruit_PWMServoDriver(0x40);
 
 
-int data_Servos[length_data_Servos] = {0};
-byte data_slave1[length_data_slave1];
-byte data_slave2[length_data_slave2];
-bool transmission_allowed = 0;
-
-// Création des fonctions de transmission de données : 
+byte  data_slave1[l_data_slv1];
+byte  data_slave2[l_data_slv2];
+uint8_t   data_Servos[l_data_Serv] = {0};
+bool  transmission_allowed = 0;
 
 bool servo_change = false;
-void sendServosData();
-int angleToPulse(int ang);
 
-void read_data()
-{
-  for (int i = 0; i<nbr_data_expected; ++i)
-    {
-      if (i < length_data_slave1)
-      {
-        data_slave1[i] = (int)Serial.read();
-        continue;
-      }
-
-      if (i >= length_data_slave1 and (i < length_data_slave2 + length_data_slave1))
-      {
-        data_slave2[i-length_data_slave1] = (int)Serial.read();
-        continue;
-      }
-
-      if (i >= (length_data_slave2 + length_data_slave1))
-      {
-        int new_val(Serial.read());
-        int j(i-length_data_slave2 - length_data_slave1);
-
-        if (new_val != data_Servos[j])
-        {
-          data_Servos[j] = new_val;
-          servo_change = true;
-        }
-
-      }      
-    }
-    // for (int i(0); i < 3; i++)
-    // {
-    //   Serial.print(data_slave1[i]);
-    //   Serial.print(data_slave2[i]);
-    // }
-  
-  transmission_allowed = 1;
-
-}
-
-
-void sendToNano(byte address, byte data[], int length) {
-  Wire.beginTransmission(address);
-  Wire.write(data, length);
-  // Serial.print("Sending to Nano value ");
-  // for (unsigned i(0); i < 3; i++)
-  // {
-  //   Serial.print((int8_t)(*(data+i)));
-  //   Serial.print(" ");
-  // }
-  // Serial.println();
-  Wire.endTransmission();
-}
-
-
-// Fonctions principales du programme : 
-
+///
+void  sendServosData();
+int   angleToPulse(int ang);
+void  read_data();
+void  sendToNano(byte address, byte data[], int length);
+void  sendServosData();
+int   angleToPulse(int ang);
+///
 
 void setup() 
 {
   Serial.begin(9600);                                                                                                                                                                                                                                                         
   Wire.begin();
+  splitter.begin();
+  splitter.setPWMFreq(60);
 }
 
-int j(0);
 void loop()
 {
   transmission_allowed = 0;
-
-  if (Serial.available() >= nbr_data_expected)
+  // Serial.println(Serial.available());
+  if (Serial.available() >= tot_data_length)
   {
     read_data();
 
-    if (transmission_allowed)
+    sendToNano(adress_slave1, data_slave1, l_data_slv1);
+    sendToNano(adress_slave2, data_slave2, l_data_slv2);
+    if (servo_change)
     {
-      sendToNano(adress_slave1, data_slave1, length_data_slave1);
-      sendToNano(adress_slave2, data_slave2, length_data_slave2);
-      if (servo_change)
-      {
-        // sendServosData();
-      }
-      transmission_allowed = 0;
+      // sendServosData();
+      servo_change = false;
     }
   }
-  delay(1);
+  delay(10);
+}
+
+// Création des fonctions de transmission de données : 
+
+
+void read_data() //Confirmed works as intended
+{
+  for (int i(0); i < l_data_slv1; i++) {
+    data_slave1[i] = Serial.read();
+  }
+  for (int i(0); i < l_data_slv2; i++) {
+    data_slave2[i] = Serial.read();
+  }
+  for (int i(0); i < l_data_Serv; i++) {
+    uint8_t new_val(Serial.read());
+
+    if (new_val != data_Servos[i]) {
+      data_Servos[i] = new_val;
+      servo_change = true;
+    }
+  }
+
+  // Serial.write(data_slave1, l_data_slv1);
+  // Serial.write(data_slave2, l_data_slv2);
+  // Serial.write(data_Servos, l_data_Serv);
+}
+
+void sendToNano(byte address, byte data[], int length) {
+  Wire.beginTransmission(address);
+  Wire.write(data, length);
+  Wire.endTransmission();
 }
 
 // void sendServosData()

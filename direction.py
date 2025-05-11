@@ -80,11 +80,11 @@ def calculate_transmission() :
         ext_angle = m.asin((LENGTH_1 + LENGTH_2) / (2 * ext_radius))
         
         # Moteurs :
-        MotorFR = Input_speed
-        MotorBR = Input_speed
+        MotorFL = Input_speed
+        MotorBL = Input_speed
         
-        MotorFL = Input_speed * ext_radius / radius
-        MotorBL = Input_speed * ext_radius / radius
+        MotorFR = Input_speed * radius / ext_angle
+        MotorBR = Input_speed * radius / ext_radius
 
         MotorMR = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * radius)) ** 2 ) - DELTA_WIDTH)
         MotorML = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * ext_radius)) ** 2 ) + DELTA_WIDTH)
@@ -108,11 +108,11 @@ def calculate_transmission() :
         ext_angle = m.asin((LENGTH_1 + LENGTH_2) / (2 * ext_radius))
         
         # Moteurs :
-        MotorFL = Input_speed
-        MotorBL = Input_speed
+        MotorFR = Input_speed
+        MotorBR = Input_speed
         
-        MotorFR = Input_speed * ext_radius / radius
-        MotorBR = Input_speed * ext_radius / radius
+        MotorFL = Input_speed * radius / ext_radius
+        MotorBL = Input_speed * radius / ext_radius
         
         MotorMR = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * ext_radius)) ** 2 ) + DELTA_WIDTH)
         MotorML = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * radius)) ** 2 ) - DELTA_WIDTH)

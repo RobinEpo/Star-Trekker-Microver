@@ -8,7 +8,6 @@ import time
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.05)
 
 pygame.init()
-
 pygame.joystick.init()
 joystick = pygame.joystick.Joystick(0)
 deadzone = 0.1
@@ -19,14 +18,8 @@ angle = 90
 
 data_slave1 = [0, 0, 0]     # signed 8-bit
 data_slave2 = [0, 0, 0]     # signed 8-bit
-data_servos = [angle, angle, angle, angle]
-all_data = [data_slave1, data_slave2, data_servos]
-
-
-def transmit_direction():
-    data_dir = [dir.MotorFR, dir.MotorMR, dir.MotorBR, dir.MotorFL, dir.MotorML, 
-                dir.MotorBL, dir.ServoFR, dir.ServoBR, dir.ServoFL, dir.ServoBL]   
-    ser.write(bytes(data_dir))
+data_servos = [90, 90, 90, 90]
+curr_data = [data_slave1, data_slave2, data_servos]
 
 while True:
     for event in pygame.event.get() :
@@ -37,31 +30,40 @@ while True:
                 else:
                     angle = 90
             if event.axis == 4 : #left trigger
-                speed_r = (int(-(event.value+1)*255/2))
+                speed_r = (int(255*(event.value+1)/2))
             if event.axis == 5 : #right trigger
-                speed_l = (int(255*(event.value+1)/2))
+                speed_l = (int(-255*(event.value+1)/2))
 
-    speed = int((speed_r + speed_l)/2) + 128 # 4 
-    data_slave1 = [speed, speed, speed]     # signed 8-bit
-    data_slave2 = [speed, speed, speed]     # signed 8-bit
+    speed = int((speed_r + speed_l)/2)  
+    data_slave1 = [speed, speed, speed]
+    data_slave2 = [speed, speed, speed]
     data_servos = [angle, angle, angle, angle]
     new_data = [data_slave1, data_slave2, data_servos]
 
-    if (new_data != all_data):
-        all_data = new_data
-        for pack in all_data:
-            for item in pack:
-                ser.write(bytes([item]))
-                print((bytes([item])), end=" ")
+    #Debug note: Already verified that only one bit is sent each time
+    if (new_data != curr_data):
+        curr_data = new_data
+        for spd in data_slave1:
+            ser.write(spd.to_bytes(1, byteorder='big', signed=True))
+        for spd in data_slave2:
+            ser.write(spd.to_bytes(1, byteorder='big', signed=True))
+        for angle in data_servos:
+            ser.write(angle.to_bytes(1, byteorder='big', signed=False))
+
         time.sleep(0.001)
         print(f"Sent : Speed = {speed}, angle = {angle}")
+        for i in range(12):
+            print(ser.read().hex(), end=" ")
+
+def transmit_direction():
+    data_dir = [dir.MotorFR, dir.MotorMR, dir.MotorBR, dir.MotorFL, dir.MotorML, 
+                dir.MotorBL, dir.ServoFR, dir.ServoBR, dir.ServoFL, dir.ServoBL]   
+    ser.write(bytes(data_dir))
 
     # dir.Input_speed = speed
     # dir.x_joystick = angle
     # dir.calculate_transmission()
     # transmit_direction()
-
-
 
     # if event.type == JOYBUTTONDOWN :
     #     if event.button == 4 : #left_bumper down

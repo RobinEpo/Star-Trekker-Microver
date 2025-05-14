@@ -1,18 +1,13 @@
 import math as m
-#import serial
-#import time
-
-# Initialisation de la connexion Serial :
-# ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)  # Vérifier le port (peut être /dev/ttyUSB0)
 
 # Geometrical considerations :
 LENGTH_1 = 15          # Valeur de test à changer (en cm)
 LENGTH_2 = LENGTH_1
 WIDTH = 20             # Valeur de test à changer (en cm)
-DELTA_WIDTH = 5
-MAX_ANGLE_RACING = 20
-MAX_ANGLE_PRECISION = 90
-ANGLE_FRONT = 0        # A vérif
+DELTA_WIDTH = 0.2
+MAX_ANGLE_RACING = 20 * m.pi / 180 # En radians direct (plus utile pour les calculs)
+MAX_ANGLE_PRECISION = m.pi / 2
+ANGLE_FRONT = 90        # A vérif (degrés)
 
 # Input states :
 rotation : bool = 0    # 1 si on tourne
@@ -54,6 +49,10 @@ def Calculate_Radius(): # Rayon intérieur de courbure
 
 # Début code principal : 
 def calculate_transmission() :
+    global MotorFR, MotorMR, MotorBR, MotorFL, MotorML, MotorBL
+    global ServoFR, ServoBR, ServoFL, ServoBL
+    global rotation, direction
+    
     if x_joystick == 0 :
         rotation = 0
         
@@ -79,21 +78,22 @@ def calculate_transmission() :
         ext_radius = radius + WIDTH * m.cos(in_angle)  # Rayon roues avant et arrière gauche
         ext_angle = m.asin((LENGTH_1 + LENGTH_2) / (2 * ext_radius))
         
+        
         # Moteurs :
         MotorFL = Input_speed
         MotorBL = Input_speed
         
-        MotorFR = Input_speed * radius / ext_angle
+        MotorFR = Input_speed * radius / ext_radius
         MotorBR = Input_speed * radius / ext_radius
 
-        MotorMR = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * radius)) ** 2 ) - DELTA_WIDTH)
-        MotorML = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * ext_radius)) ** 2 ) + DELTA_WIDTH)
+        MotorMR = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * radius)) ** 2 ) - DELTA_WIDTH / radius)
+        MotorML = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * ext_radius)) ** 2 ) + DELTA_WIDTH / ext_radius)
         
         # Servos : 
-        ServoFR = ANGLE_FRONT + in_angle
-        ServoBR = ANGLE_FRONT + in_angle
-        ServoFL = ANGLE_FRONT + ext_angle
-        ServoBL = ANGLE_FRONT + ext_angle
+        ServoFR = ANGLE_FRONT + in_angle * 180 / m.pi
+        ServoBR = ANGLE_FRONT + in_angle * 180 / m.pi
+        ServoFL = ANGLE_FRONT + ext_angle * 180 / m.pi
+        ServoBL = ANGLE_FRONT + ext_angle * 180 / m.pi
         
         
         
@@ -114,18 +114,21 @@ def calculate_transmission() :
         MotorFL = Input_speed * radius / ext_radius
         MotorBL = Input_speed * radius / ext_radius
         
-        MotorMR = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * ext_radius)) ** 2 ) + DELTA_WIDTH)
-        MotorML = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * radius)) ** 2 ) - DELTA_WIDTH)
+        MotorMR = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * ext_radius)) ** 2 ) + DELTA_WIDTH / ext_radius)
+        MotorML = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * radius)) ** 2 ) - DELTA_WIDTH / radius)
         
         # Servos :                          # Adapter les angles selon l'orientation du servo
-        ServoFR = ANGLE_FRONT - ext_angle
-        ServoBR = ANGLE_FRONT - ext_angle
-        ServoFL = ANGLE_FRONT - in_angle
-        ServoBL = ANGLE_FRONT - in_angle
+        ServoFR = ANGLE_FRONT - ext_angle * 180 / m.pi
+        ServoBR = ANGLE_FRONT - ext_angle * 180 / m.pi
+        ServoFL = ANGLE_FRONT - in_angle * 180 / m.pi
+        ServoBL = ANGLE_FRONT - in_angle * 180 / m.pi
     
-# def transmit_data():
-#    data_transmitted = [MotorFR, MotorMR, MotorBR, MotorFL, MotorML, MotorBL, ServoFR, ServoBR, ServoFL, ServoBL]   
-#    ser.write(bytes(data_transmitted))
+     # print(MotorFR, MotorMR, MotorBR, MotorFL, MotorML, MotorBL, ServoFR, ServoBR, ServoFL, ServoBL)
+        
+def invert_mode():
+    global mode
+    mode = not mode
+
    
 # Il manque simplement la réception des données depuis la manette et son traitement. A voir si on utilise un
 # nouveau GitHub pour la réception. 

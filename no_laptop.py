@@ -11,10 +11,12 @@ pygame.init()
 pygame.joystick.init()
 joystick = pygame.joystick.Joystick(0)
 deadzone = 0.1
- 
+
 speed_r = 0
 speed_l = 0
 angle = 90
+mode : bool = 0         # 0 pour course / 1 pour bras
+B_Pressed : bool = 0    # Pour le boost
 
 data_slave1 = [0, 0, 0]     # signed 8-bit
 data_slave2 = [0, 0, 0]     # signed 8-bit
@@ -33,6 +35,17 @@ while True:
                 speed_r = (int(255*(event.value+1)/2))
             if event.axis == 5 : #right trigger
                 speed_l = (int(-255*(event.value+1)/2))
+                
+        if event.type == JOYBUTTONDOWN: 
+            if event.button == 3:       # Bouton Y
+                mode = not mode         # Switch entre mode déplacement / bras 
+            if event.button == 1:       # Bouton B
+                B_Pressed = 1           # Activation boost (race mode)
+                
+        if event.type == JOYBUTTONUP:
+            if event.button == 1:       # Bouton B
+                B_Pressed = 0           # Stop boost (precision mode)
+            
 
     speed = int((speed_r + speed_l)/2)  
     data_slave1 = [speed, speed, speed]

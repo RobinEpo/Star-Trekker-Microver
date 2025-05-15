@@ -87,7 +87,7 @@ while True:
         for angle in data_servos:
             ser.write(int(angle).to_bytes(1, byteorder='big', signed=False))
 
-        time.sleep(0.001)
+        time.sleep(0.1)
         print(f"Sent : Speed = {speed}, angle = {angle}")
         for i in range(12):
             print(ser.read().hex(), end=" ")

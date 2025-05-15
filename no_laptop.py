@@ -40,16 +40,15 @@ curr_data = [data_slave1, data_slave2, data_servos]
 while True:
     for event in pygame.event.get() :
         if event.type == JOYAXISMOTION :
-            if event.axis == X_Left_Joystick : #joystick
+            if event.axis == 0 : #joystick = event 0
                 if abs(event.value) > deadzone:
                     #  angle = (int(90*(1+event.value)))
                     dir.x_joystick = event.value
                 else:
-                    # angle = 90
-                    dir.x_joystick = 0
-            if event.axis == Gachette_Gauche : #right trigger
+                    angle = 90
+            if event.axis == 5 : #left trigger = event 4
                 speed_r = (int(255*(event.value+1)/2))
-            if event.axis == Gachette_Droite : #left trigger
+            if event.axis == 2 : #right trigger = event 5
                 speed_l = (int(-255*(event.value+1)/2))
                 
         if event.type == JOYBUTTONDOWN: 
@@ -84,9 +83,9 @@ while True:
     if (new_data != curr_data):
         curr_data = new_data
         for spd in data_slaves:
-            ser.write(spd.to_bytes(1, byteorder='big', signed=True))
+            ser.write(int(spd).to_bytes(1, byteorder='big', signed=True))
         for angle in data_servos:
-            ser.write(angle.to_bytes(1, byteorder='big', signed=False))
+            ser.write(int(angle).to_bytes(1, byteorder='big', signed=False))
 
         time.sleep(0.001)
         print(f"Sent : Speed = {speed}, angle = {angle}")

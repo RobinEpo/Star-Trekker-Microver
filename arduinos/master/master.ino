@@ -52,7 +52,7 @@ void loop()
     sendToNano(adress_slave2, data_slave2, l_data_slv2);
     if (servo_change)
     {
-      // sendServosData();
+      sendServosData();
       servo_change = false;
     }
   }
@@ -79,9 +79,9 @@ void read_data() //Confirmed works as intended
     }
   }
 
-  // Serial.write(data_slave1, l_data_slv1);
-  // Serial.write(data_slave2, l_data_slv2);
-  // Serial.write(data_Servos, l_data_Serv);
+  Serial.write(data_slave1, l_data_slv1);
+  Serial.write(data_slave2, l_data_slv2);
+  Serial.write(data_Servos, l_data_Serv);
 }
 
 void sendToNano(byte address, byte data[], int length) {
@@ -90,19 +90,14 @@ void sendToNano(byte address, byte data[], int length) {
   Wire.endTransmission();
 }
 
-// void sendServosData()
-// {
-//   for (unsigned i = 0; i < length_data_Servos; i++)
-//   {
-//     board.setPWM(i, 0, angleToPulse(data_Servos[i]));
-//   }
-// }
+void sendServosData()
+{
+  for (unsigned i = 0; i < l_data_Serv; i++) {
+    splitter.setPWM(i, 0, angleToPulse(data_Servos[i]));
+  }
+}
 
-// int angleToPulse(int ang) {                            //gets the angle in degree and returns the pulse width  
-//   int pulse = map(ang,0, 180, SERVOMIN,SERVOMAX);  // map angle of 0 to 180 to Servo min and Servo max 
-//   // Serial.print("Angle: ");
-//   // Serial.print(ang);
-//   // Serial.print(" pulse: ");
-//   // Serial.println(pulse);
-//   return pulse;
-// }
+int angleToPulse(int ang) {                            //gets the angle in degree and returns the pulse width  
+  int pulse = map(ang,0, 180, SERVOMIN,SERVOMAX);  // map angle of 0 to 180 to Servo min and Servo max 
+  return pulse;
+}

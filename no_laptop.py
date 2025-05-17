@@ -45,7 +45,7 @@ while True:
                     #  angle = (int(90*(1+event.value)))
                     dir.x_joystick = event.value
                 else:
-                    angle = 90
+                    dir.x_joystick = 0
             if event.axis == 5 : #left trigger = event 4
                 speed_r = (int(255*(event.value+1)/2))
             if event.axis == 2 : #right trigger = event 5

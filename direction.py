@@ -1,10 +1,10 @@
 import math as m
 
 # Geometrical considerations :
-LENGTH_1 = 15          # Valeur de test à changer (en cm)
+LENGTH_1 = 21          # Valeur de test à changer (en cm)
 LENGTH_2 = LENGTH_1
-WIDTH = 20             # Valeur de test à changer (en cm)
-DELTA_WIDTH = 0.2
+WIDTH = 32             # Valeur de test à changer (en cm)
+DELTA_WIDTH = 5
 MAX_ANGLE_RACING = 20 * m.pi / 180 # En radians direct (plus utile pour les calculs)
 MAX_ANGLE_PRECISION = m.pi / 2
 ANGLE_FRONT = 90        # A vérif (degrés)
@@ -91,9 +91,9 @@ def calculate_transmission() :
         
         # Servos : 
         ServoFR = ANGLE_FRONT + in_angle * 180 / m.pi
-        ServoBR = ANGLE_FRONT + in_angle * 180 / m.pi
+        ServoBR = ANGLE_FRONT - in_angle * 180 / m.pi
         ServoFL = ANGLE_FRONT + ext_angle * 180 / m.pi
-        ServoBL = ANGLE_FRONT + ext_angle * 180 / m.pi
+        ServoBL = ANGLE_FRONT - ext_angle * 180 / m.pi
         
         
         
@@ -119,9 +119,9 @@ def calculate_transmission() :
         
         # Servos :                          # Adapter les angles selon l'orientation du servo
         ServoFR = ANGLE_FRONT - ext_angle * 180 / m.pi
-        ServoBR = ANGLE_FRONT - ext_angle * 180 / m.pi
+        ServoBR = ANGLE_FRONT + ext_angle * 180 / m.pi
         ServoFL = ANGLE_FRONT - in_angle * 180 / m.pi
-        ServoBL = ANGLE_FRONT - in_angle * 180 / m.pi
+        ServoBL = ANGLE_FRONT + in_angle * 180 / m.pi
     
      # print(MotorFR, MotorMR, MotorBR, MotorFL, MotorML, MotorBL, ServoFR, ServoBR, ServoFL, ServoBL)
         

@@ -54,20 +54,25 @@ while True:
         if event.type == JOYBUTTONDOWN: 
             if event.button == Bouton_Y:       # Bouton Y
                 mode = not mode         # Switch entre mode déplacement / bras 
+                print("Bouton Y pressé")
             if event.button == Bouton_B:       # Bouton B
                 B_Pressed = 1           # Activation boost (race mode)
+                print("Bouton B pressé")
             if event.button == Bouton_A:       # Bouton A
                 mode_coude = not mode_coude     # Bouton 
+                print("Bouton A pressé")
                 
         if event.type == JOYBUTTONUP:
             if event.button == 1:       # Bouton B
                 B_Pressed = 0           # Stop boost (precision mode)
+                print("Bouton B relâché")
             
 
     speed = int((speed_r + speed_l)/2)
     
     if mode == 0:
         dir.Input_speed = speed
+        dir.mode = B_Pressed
         dir.calculate_transmission()
      
     # data_slave1 = [speed, speed, speed]

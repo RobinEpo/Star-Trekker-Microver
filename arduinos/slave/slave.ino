@@ -1,15 +1,17 @@
 #include "Wire.h"
 
-enum SERVO_SIDE {LEFT = 0x01, RIGHT = 0x02};
+enum SERVO_SIDE {LEFT, RIGHT};
 enum Direction {FRWRD, BACK};
-const byte adress_slave = LEFT;           // Utiliser 0x02 pour le moteur 2 et changer pinouts, sinon même code
+const SERVO_SIDE side = RIGHT; //EDIT HERE
 
-const int FrontIN1 =  (adress_slave == LEFT) ? 3   : 11;
-const int FrontIN2 =  (adress_slave == LEFT) ? 5   : 10;                     // Moteurs avant et arrière (même côté)
-const int CentreIN1 = (adress_slave == LEFT) ? 6   : 9;
-const int CentreIN2 = (adress_slave == LEFT) ? 9   : 6;
-const int BackIN1 =   (adress_slave == LEFT) ? 10  : 5;
-const int BackIN2 =   (adress_slave == LEFT) ? 11  : 3;
+const byte adress_slave = (side == LEFT) ? 0x01 : 0x02;           // Utiliser 0x02 pour le moteur 2 et changer pinouts, sinon même code
+
+const int FrontIN1 =  (side == LEFT) ? 3   : 11;
+const int FrontIN2 =  (side == LEFT) ? 5   : 10;                     // Moteurs avant et arrière (même côté)
+const int CentreIN1 = (side == LEFT) ? 6   : 9;
+const int CentreIN2 = (side == LEFT) ? 9   : 6;
+const int BackIN1 =   (side == LEFT) ? 10  : 5;
+const int BackIN2 =   (side == LEFT) ? 11  : 3;
 
 //magic numbers
 const int length_data = 3;

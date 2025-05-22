@@ -6,7 +6,7 @@ import arm
 import struct
 import time
 
-# ser = serial.Serial('COM3', 9600, timeout=0.05)     # '/dev/ttyUSB0' sur linux
+# ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.05)     # '/dev/ttyUSB0' sur linux ; 'COM3' sur WINDOWS
 
 # Constantes des boutons manette : 
 Bouton_A : int = 0
@@ -28,6 +28,9 @@ deadzone = 0.1
 
 speed_r = 0
 speed_l = 0
+speed_gripper = 0
+speed_gripper_r = 0
+speed_gripper_l = 0
 x_joystick = 0
 y_joystick = 0
 angle = 90
@@ -39,6 +42,8 @@ data_slave1 = [0, 0, 0]     # signed 8-bit
 data_slave2 = [0, 0, 0]     # signed 8-bit
 data_servos = [90, 90, 90, 90]
 curr_data = [data_slave1, data_slave2, data_servos]
+
+arm.set_init_pos()
 
 while True:
     for event in pygame.event.get() :
@@ -58,7 +63,15 @@ while True:
                 speed_r = (int(255*(event.value+1)/2))
             if event.axis == 2 and mode == 0:           #right trigger = event 5
                 speed_l = (int(-255*(event.value+1)/2))
-                
+            if event.axis == 5 and mode == 1:           #left trigger = event 4
+                speed_gripper_r = (event.value + 1)/2
+                if speed_gripper_r < 0:
+                    speed_gripper_r = 0
+            if event.axis == 2 and mode == 1:           #right trigger = event 5
+                speed_gripper_l = -(event.value + 1)/2
+                if speed_gripper_l < 0:
+                    speed_gripper_l = 0
+            
         if event.type == JOYBUTTONDOWN: 
             if event.button == Bouton_Y:       # Bouton Y
                 mode = not mode         # Switch entre mode déplacement / bras 
@@ -75,10 +88,15 @@ while True:
                 B_Pressed = 0           # Stop boost (precision mode)
                 print("Bouton B relâché")
             
-
-    speed = int((speed_r + speed_l)/2)
+    if B_Pressed:                          # Boost si on est en mode racing
+        speed = int((speed_r + speed_l)/2)
+    else : 
+        speed = int((speed_r + speed_l)/4)
+    speed_gripper = int((speed_gripper_l + speed_gripper_r) * 127)
+    
     print("mode = ", mode)
     if mode == 0:
+        speed_gripper = 0                   # Empêcher la modification de la pince quand on roule
         dir.x_joystick = x_joystick
         dir.Input_speed = speed
         dir.mode = B_Pressed
@@ -111,6 +129,7 @@ while True:
             ser.write(int(angle).to_bytes(1, byteorder='big', signed=False))
         for angle in data_arm:
             ser.write(int(angle).to_bytes(1, byteorder='big', signed=False))
+        ser.write(int().to_bytes(1, byteorder='big', signed=True))
 
         time.sleep(0.1)
         print(f"Sent : Speed = {speed}, angle = {angle}")

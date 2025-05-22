@@ -123,7 +123,7 @@ def calculate_transmission() :
         ServoFL = ANGLE_FRONT - in_angle * 180 / m.pi
         ServoBL = ANGLE_FRONT + in_angle * 180 / m.pi
     
-     # print(MotorFR, MotorMR, MotorBR, MotorFL, MotorML, MotorBL, ServoFR, ServoBR, ServoFL, ServoBL)
+    print(MotorFR, MotorMR, MotorBR, MotorFL, MotorML, MotorBL, ServoFR, ServoBR, ServoFL, ServoBL)
         
 def invert_mode():
     global mode

@@ -25,7 +25,7 @@ def set_init_pos():     # Au moment de démarrer le robot
     phi = -45
     Px = L1 * np.cos(teta * np.pi / 180 ) + L2 * np.cos(teta * np.pi / 180  + phi * np.pi / 180 )
     Py = L1 * np.sin(teta * np.pi / 180 ) + L2 * np.sin(teta * np.pi / 180  + phi* np.pi / 180 )
-    print("Init teta = ", teta, " Init phi = ", phi, "Init Px = ", Px, "Init Py = ", Py)
+    # print("Init teta = ", teta, " Init phi = ", phi, "Init Px = ", Px, "Init Py = ", Py)
     
     
 
@@ -36,7 +36,7 @@ def inverse_kinematics(new_Px, new_Py):
 
     # Vérifier si le point est atteignable
     if dist > (L1 + L2) or dist < abs(L1 - L2):
-        print("Erreur 1 : Distance = ", dist, " trop élevée")
+        # print("Erreur 1 : Distance = ", dist, " trop élevée")
         return 1                                       # Erreur détectée
 
     # Calcul de D
@@ -87,16 +87,8 @@ def arm_modification(x_joystick, y_joystick):
     
     if inverse_kinematics(new_Px, new_Py):
         print("Erreur détectée sur le calcul")
+            
     
-    
-# Test de valeurs :
-
-set_init_pos()
-for i in range (0, 50):
-    arm_modification(-0.2, 0.2)
-print("deuxième partie")
-for i in range (0, 50):
-    arm_modification(-0.2, -0.2)
 
     
     

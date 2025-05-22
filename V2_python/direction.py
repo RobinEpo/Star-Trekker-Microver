@@ -3,7 +3,7 @@ import math as m
 # Geometrical considerations :
 LENGTH_1 = 21          # Valeur de test à changer (en cm)
 LENGTH_2 = LENGTH_1
-WIDTH = 32             # Valeur de test à changer (en cm)
+WIDTH = 30             # Valeur de test à changer (en cm)
 DELTA_WIDTH = 5
 MAX_ANGLE_RACING = 20 * m.pi / 180 # En radians direct (plus utile pour les calculs)
 MAX_ANGLE_PRECISION = m.pi / 2

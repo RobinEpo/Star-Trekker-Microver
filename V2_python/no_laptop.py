@@ -6,7 +6,7 @@ import arm
 import struct
 import time
 
-# ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.05)     # '/dev/ttyUSB0' sur linux ; 'COM3' sur WINDOWS
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.05)     # '/dev/ttyUSB0' sur linux ; 'COM3' sur WINDOWS
 
 # Constantes des boutons manette : 
 Bouton_A : int = 0
@@ -120,7 +120,7 @@ while True:
 
     
     #Debug note: Already verified that only one bit is sent each time
-    """
+    
     if (new_data != curr_data):
         curr_data = new_data
         for spd in data_slaves:
@@ -135,7 +135,7 @@ while True:
         print(f"Sent : Speed = {speed}, angle = {angle}")
         for i in range(12):
             print(ser.read().hex(), end=" ") 
-    """
+    
 
 def transmit_direction():
     data_dir = [dir.MotorFR, dir.MotorMR, dir.MotorBR, dir.MotorFL, dir.MotorML, 

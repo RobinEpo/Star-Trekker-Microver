@@ -87,7 +87,15 @@ def calculate_transmission() :
         MotorBR = Input_speed * radius / ext_radius
 
         MotorMR = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * radius)) ** 2 ) - DELTA_WIDTH / radius)
+        if MotorMR > 127:
+            MotorMR = 127
+        if MotorMR < -127:
+            MotorMR = -127
         MotorML = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * ext_radius)) ** 2 ) + DELTA_WIDTH / ext_radius)
+        if MotorML > 127:
+            MotorML = 127
+        if MotorML < -127:
+            MotorML = -127
         
         # Servos : 
         ServoFR = ANGLE_FRONT + in_angle * 180 / m.pi
@@ -115,7 +123,16 @@ def calculate_transmission() :
         MotorBL = Input_speed * radius / ext_radius
         
         MotorMR = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * ext_radius)) ** 2 ) + DELTA_WIDTH / ext_radius)
+        if MotorMR > 127:
+            MotorMR = 127
+        if MotorMR < -127:
+            MotorMR = -127
         MotorML = Input_speed * (m.sqrt(1 - ((LENGTH_1 + LENGTH_2) / (2 * radius)) ** 2 ) - DELTA_WIDTH / radius)
+        if MotorML > 127:
+            MotorML = 127
+        if MotorML < -127:
+            MotorML = -127
+        
         
         # Servos :                          # Adapter les angles selon l'orientation du servo
         ServoFR = ANGLE_FRONT - ext_angle * 180 / m.pi

@@ -116,9 +116,6 @@ while True:
     data_arm = [arm.teta + 90, arm.phi + 90]                            # shift nécessaire car calculs de -90° à 90° sur arm.py
     new_data = [data_slaves, data_servos, data_arm]
     
-    time.sleep(1)
-
-    
     #Debug note: Already verified that only one bit is sent each time
     
     if (new_data != curr_data):
@@ -129,11 +126,11 @@ while True:
             ser.write(int(angle).to_bytes(1, byteorder='big', signed=False))
         for angle in data_arm:
             ser.write(int(angle).to_bytes(1, byteorder='big', signed=False))
-        ser.write(int().to_bytes(1, byteorder='big', signed=True))
+        ser.write(int(speed_gripper).to_bytes(1, byteorder='big', signed=True))
 
         time.sleep(0.1)
         print(f"Sent : Speed = {speed}, angle = {angle}")
-        for i in range(12):
+        for i in range(13):
             print(ser.read().hex(), end=" ") 
     
 

@@ -6,19 +6,7 @@ import pygame
 from pygame.locals import *
 import time
 import struct
-
-# Constantes des boutons manette : 
-Bouton_A : int = 0
-Bouton_B : int = 1
-Bouton_X : int = 2
-Bouton_Y : int = 3
-Bouton_Joystick_Left : int = 9          # 10 si manette PS4 / 9 si Xbox
-Bouton_Joystick_Right : int = 10        # 11 si manette PS4 / 10 si Xbox
-
-# Constantes des axes manette : 
-X_Left_Joystick : int = 0               
-Gachette_Gauche : int = 2               # 3 si PS4 / 2 si Xbox
-Gachette_Droite : int = 5               # 4 si PS4 / 5 si Xbox
+import constants
 
 pygame.init()
 pygame.joystick.init()
@@ -119,7 +107,7 @@ while True:
                     dir.MotorBL]
     data_servos = [dir.ServoFR, dir.ServoBR, dir.ServoFL, dir.ServoBL]
     data_arm = [arm.teta + 90, arm.phi + 90]                            # shift nécessaire car calculs de -90° à 90° sur arm.py
-    new_data = [data_slaves, data_servos, data_arm, speed_gripper]
+    all_data = [data_slaves, data_servos, data_arm, speed_gripper]
     
     
     

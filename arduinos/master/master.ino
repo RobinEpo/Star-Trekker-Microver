@@ -128,11 +128,15 @@ void loop()
   if (!measurementReady){
     triggerUltrasound();
   }
+  
+  // if (!measurementReady){
+  //   triggerUltrasound();
+  // }
 
-  if (measurementReady) {
-    measurementReady = false;
-    Serial.println(lastDistance);
-  }
+  // if (measurementReady) {
+  //   measurementReady = false;
+  //   Serial.println(lastDistance);
+  // }
 
   // IMU :
 
@@ -165,7 +169,7 @@ void loop()
   }
 
 
-  delay(10);
+  delay(1);
 }
 
 // Création des fonctions de transmission de données : 

@@ -2,6 +2,13 @@
 #include "Adafruit_PWMServoDriver.h"
 #include "Servo.h"
 
+volatile unsigned long startTime = 0;
+volatile unsigned long endTime = 0;
+volatile bool measurementReady = false;
+
+const int trigPin = 3;
+const int echoPin = 2; // Doit être une pin d’interruption sur le Nano (D2 = INT0)
+
 // NOTE : Consider adding sleep mode when servo_change is false
 
 #define SERVOMIN  125 // this is the 'minimum' pulse length count (out of 4096)
@@ -17,10 +24,10 @@ const byte adress_slave2 = 0x02;
 Adafruit_PWMServoDriver splitter = Adafruit_PWMServoDriver(0x40);
 
 
-const int SERVO_PIN_FR = 11;
-const int SERVO_PIN_BR = 10;
-const int SERVO_PIN_FL = 6;
-const int SERVO_PIN_BL = 5;
+const int SERVO_PIN_FR = 10;            // 11
+const int SERVO_PIN_BR = 11;            // 10
+const int SERVO_PIN_FL = 6;             // 6
+const int SERVO_PIN_BL = 5;             // 5
 
 byte  data_slave1[l_data_slv1];
 byte  data_slave2[l_data_slv2];
@@ -30,7 +37,7 @@ bool  transmission_allowed = 0;
 bool servo_change = false;
 
 ///
-void  sendArmServosData();
+void  sendWheelServosData();
 int   angleToPulse(int ang);
 void  read_data();
 void  sendToNano(byte address, byte data[], int length);
@@ -42,7 +49,18 @@ Servo serv_BR;
 Servo serv_FL;
 Servo serv_BL;
 
+float lastDistance(0);
+
 ///
+void triggerUltrasound() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+}
+
+
 
 void setup() 
 {
@@ -50,15 +68,19 @@ void setup()
   Wire.begin();
   splitter.begin();
   splitter.setPWMFreq(60);
+
   serv_FR.attach(SERVO_PIN_FR);
   serv_BR.attach(SERVO_PIN_BR);
   serv_FL.attach(SERVO_PIN_FL);
   serv_BL.attach(SERVO_PIN_BL);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(echoPin), echoISR, CHANGE);
 }
 
 void loop()
 {
-  transmission_allowed = 0;
   // Serial.println(Serial.available());
   if (Serial.available() >= tot_data_length)
   {
@@ -69,10 +91,21 @@ void loop()
     if (servo_change)
     {
       sendWheelServosData();
-      sendArmServosData();
+      sendArmServosData();    
       servo_change = false;
     }
   }
+  
+  if (!measurementReady){
+    triggerUltrasound();
+  }
+
+  if (measurementReady) {
+    measurementReady = false;
+    Serial.println(lastDistance);
+  }
+
+
   delay(10);
 }
 
@@ -96,11 +129,8 @@ void read_data() //Confirmed works as intended
     }
   }
 
-  Serial.write(data_slave1, l_data_slv1);
-  Serial.write(data_slave2, l_data_slv2);
-  Serial.write(data_Servos, l_data_Serv);
 
-  data_Servos[l_data_Serv - 1] = int(data_Servos[l_data_Serv - 1] * 3.937);      // Conversion pour le gripper du bras
+  // data_Servos[l_data_Serv - 1] = (int)(data_Servos[l_data_Serv - 1] * 3.937);   DEBUG   // Conversion pour le gripper du bras
 }
 
 void sendToNano(byte address, byte data[], int length) {
@@ -128,3 +158,21 @@ int angleToPulse(int ang) {                            //gets the angle in degre
   int pulse = map(ang,0, 180, SERVOMIN,SERVOMAX);  // map angle of 0 to 180 to Servo min and Servo max 
   return pulse;
 }
+
+
+
+// Cette fonction est appelée à chaque changement d’état sur Echo (front montant et descendant)
+void echoISR() {
+  if (digitalRead(echoPin) == HIGH) {
+    startTime = micros();
+  } else {
+    endTime = micros();
+    unsigned long duration = endTime - startTime;
+
+    if (duration > 100) {
+      lastDistance = duration / 58.0;
+      measurementReady = true;
+    }
+  }
+}
+

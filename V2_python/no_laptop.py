@@ -71,7 +71,7 @@ while True:
                 speed_gripper_l = -(event.value + 1)/2
                 if speed_gripper_l < 0:
                     speed_gripper_l = 0
-            
+        
         if event.type == JOYBUTTONDOWN: 
             if event.button == Bouton_Y:       # Bouton Y
                 mode = not mode         # Switch entre mode déplacement / bras 
@@ -87,12 +87,22 @@ while True:
             if event.button == 1:       # Bouton B
                 B_Pressed = 0           # Stop boost (precision mode)
                 print("Bouton B relâché")
+                
             
     if B_Pressed:                          # Boost si on est en mode racing
         speed = int((speed_r + speed_l)/2)
     else : 
         speed = int((speed_r + speed_l)/4)
     speed_gripper = int((speed_gripper_l + speed_gripper_r) * 127)
+    
+    word_dist : str = ser.readline().decode().strip()       # Permettra d'avoir la distance exacte sur le GUI ensuite
+    try:
+        dist = int(float(word_dist))
+        if dist < 5 and speed > 0:
+            speed = 0
+            print("Le rover a été bloqué. Distance =", dist)
+    except ValueError:
+        print("Erreur de lecture série : valeur non valide ->", repr(word_dist))
     
     print("mode = ", mode)
     if mode == 0:
@@ -129,11 +139,10 @@ while True:
         ser.write(int(speed_gripper).to_bytes(1, byteorder='big', signed=True))
 
         time.sleep(0.1)
-        print(f"Sent : Speed = {speed}, angle = {angle}")
-        for i in range(13):
-            print(ser.read().hex(), end=" ") 
+        #print(f"Sent : Speed = {speed}, angle = {angle}")
+        #for i in range(13):
+        #   print(ser.read().hex(), end=" ") 
     
-
 def transmit_direction():
     data_dir = [dir.MotorFR, dir.MotorMR, dir.MotorBR, dir.MotorFL, dir.MotorML, 
                 dir.MotorBL, dir.ServoFR, dir.ServoBR, dir.ServoFL, dir.ServoBL]   

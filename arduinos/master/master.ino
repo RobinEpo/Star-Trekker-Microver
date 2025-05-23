@@ -1,6 +1,13 @@
 #include "Wire.h"
 #include "Adafruit_PWMServoDriver.h"
 #include "Servo.h"
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <EEPROM.h>
+
+Adafruit_BNO055 bno = Adafruit_BNO055(55);
+const int EEPROM_ADDR = 0;
+bool offsetsRestored = false;
 
 volatile unsigned long startTime = 0;
 volatile unsigned long endTime = 0;
@@ -77,6 +84,26 @@ void setup()
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   attachInterrupt(digitalPinToInterrupt(echoPin), echoISR, CHANGE);
+
+  if (!bno.begin()) {
+    Serial.println("Erreur : BNO055 non détecté !");
+    while (1);
+  }
+
+  bno.setExtCrystalUse(true);
+  delay(1000);
+
+  // Charger les offsets depuis EEPROM
+  adafruit_bno055_offsets_t storedOffsets;
+  EEPROM.get(EEPROM_ADDR, storedOffsets);
+
+  if (isValidOffsets(storedOffsets)) {
+    bno.setSensorOffsets(storedOffsets);
+    offsetsRestored = true;
+    Serial.println("Offsets restaurés depuis EEPROM.");
+  } else {
+    Serial.println("Offsets non valides. Calibration requise...");
+  }
 }
 
 void loop()
@@ -96,6 +123,8 @@ void loop()
     }
   }
   
+  // Capteur Ultrasons :
+
   if (!measurementReady){
     triggerUltrasound();
   }
@@ -103,6 +132,36 @@ void loop()
   if (measurementReady) {
     measurementReady = false;
     Serial.println(lastDistance);
+  }
+
+  // IMU :
+
+  if (!offsetsRestored) {
+    uint8_t sys, gyro, accel, mag;
+    bno.getCalibration(&sys, &gyro, &accel, &mag);
+
+    Serial.print("Calib (SYS,G,A,M): ");
+    Serial.print(sys); Serial.print(" ");
+    Serial.print(gyro); Serial.print(" ");
+    Serial.print(accel); Serial.print(" ");
+    Serial.println(mag);
+
+    if (sys == 3 && gyro == 3 && accel == 3 && mag == 3) {
+      adafruit_bno055_offsets_t calib;
+      bno.getSensorOffsets(calib);
+      EEPROM.put(EEPROM_ADDR, calib);
+      Serial.println("✅ Calibration terminée. Offsets sauvegardés !");
+      offsetsRestored = true;
+      delay(1000);
+    }
+  } else {
+    // Utilisation normale : par exemple lire les quaternions
+    imu::Quaternion quat = bno.getQuat();
+    Serial.print("QUAT:");
+    Serial.print(quat.w(), 4); Serial.print(",");
+    Serial.print(quat.x(), 4); Serial.print(",");
+    Serial.print(quat.y(), 4); Serial.print(",");
+    Serial.println(quat.z(), 4);
   }
 
 
@@ -123,9 +182,12 @@ void read_data() //Confirmed works as intended
   for (int i(0); i < l_data_Serv; i++) {
     uint8_t new_val(Serial.read());
 
-    if (new_val != data_Servos[i]) {
+    if (new_val != data_Servos[i] and new_val != 200) {
       data_Servos[i] = new_val;
       servo_change = true;
+    }
+    else if (new_val == 200){
+      resetCalibration();
     }
   }
 
@@ -160,7 +222,7 @@ int angleToPulse(int ang) {                            //gets the angle in degre
 }
 
 
-
+// Ultrasons :
 // Cette fonction est appelée à chaque changement d’état sur Echo (front montant et descendant)
 void echoISR() {
   if (digitalRead(echoPin) == HIGH) {
@@ -176,3 +238,18 @@ void echoISR() {
   }
 }
 
+
+// IMU : 
+
+// Vérifie si les offsets sont plausibles (simple heuristique)
+bool isValidOffsets(const adafruit_bno055_offsets_t& data) {
+  // Un offset vierge a souvent tous les champs à 0 ou 0xFFFF
+  return !(data.accel_offset_x == 0 && data.gyro_offset_x == 0);
+}
+
+void resetCalibration() {
+  adafruit_bno055_offsets_t emptyOffsets;
+  EEPROM.put(EEPROM_ADDR, emptyOffsets);
+
+  offsetsRestored = false; // Forcer recalibration
+}

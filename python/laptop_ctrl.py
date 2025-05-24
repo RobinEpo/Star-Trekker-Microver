@@ -19,7 +19,7 @@ B_Pressed : bool = 0    # Pour le boost
 mode_coude : bool = 0
 
 #Create a UDP socket
-CONTROL_IP = "10.113.193.163"   # RPi’s IP
+CONTROL_IP = "10.113.193.143"   # RPi’s IP
 CONTROL_PORT = 5001
 udp_ctrl_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 

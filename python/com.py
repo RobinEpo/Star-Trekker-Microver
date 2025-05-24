@@ -71,9 +71,10 @@ try:
 
         time.sleep(0.02)  # ~50 FPS
 
-except KeyboardInterrupt:
+except (KeyboardInterrupt, Exception):
     print("\n ! Stopped by user")
-
+    ser.write(bytes([0]*13))   # all zeros
 finally:
+    picam2.close()
     sock.close()
     picam2.close()

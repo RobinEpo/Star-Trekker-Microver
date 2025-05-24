@@ -69,7 +69,7 @@ try:
         sock.sendall(header + length + image_bytes)
         print("->")
 
-        time.sleep(0.02)  # ~50 FPS
+        time.sleep(0.05)  # ~50 FPS
 
 except (KeyboardInterrupt, Exception):
     print("\n ! Stopped by user")

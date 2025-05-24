@@ -89,7 +89,7 @@ def video_streamer():
             sock.sendall(packet)
         except Exception as e:
             print("⚠️ Video send error:", e)
-        time.sleep(0.02)  # ~50 FPS
+        time.sleep(0.05)  # ~20 FPS
 
 
 if __name__ == '__main__':

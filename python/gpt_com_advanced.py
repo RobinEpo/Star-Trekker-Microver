@@ -7,7 +7,7 @@ import serial
 from picamera2 import Picamera2
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-LAPTOP_IP = "10.113.193.45"   # Laptop's IP address
+LAPTOP_IP = "192.168.4.77"   # Laptop's IP address
 TCP_PORT   = 5000              # Port for video stream
 CONTROL_PORT = 5001            # Port for control commands
 MSG_LENGTH = 13                # Expected length of each control packet

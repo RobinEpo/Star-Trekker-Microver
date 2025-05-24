@@ -7,7 +7,7 @@ from picamera2 import Picamera2
 
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.05)
 
-LAPTOP_IP = "10.113.193.45"  # Replace with your laptop's IP
+LAPTOP_IP = "192.168.4.77"  # Replace with your laptop's IP
 PORT = 5000
 
 # Set up TCP socket and connect to laptop

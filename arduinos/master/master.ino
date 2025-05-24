@@ -36,6 +36,11 @@ const int SERVO_PIN_BR = 11;            // 10
 const int SERVO_PIN_FL = 6;             // 6
 const int SERVO_PIN_BL = 5;             // 5
 
+const int SERVO_PIN_TETA= 10;            // 11
+const int SERVO_PIN_PHI = 11;            // 10
+const int SERVO_PIN_GRIPPER = 6;             // 6
+
+
 byte  data_slave1[l_data_slv1];
 byte  data_slave2[l_data_slv2];
 uint8_t   data_Servos[l_data_Serv] = {0};
@@ -55,6 +60,9 @@ Servo serv_FR;
 Servo serv_BR;
 Servo serv_FL;
 Servo serv_BL;
+Servo serv_Teta;
+Servo serv_Phi;
+Servo serv_Gripper;
 
 float lastDistance(0);
 
@@ -76,10 +84,13 @@ void setup()
   splitter.begin();
   splitter.setPWMFreq(60);
 
-  serv_FR.attach(SERVO_PIN_FR);
-  serv_BR.attach(SERVO_PIN_BR);
-  serv_FL.attach(SERVO_PIN_FL);
-  serv_BL.attach(SERVO_PIN_BL);
+  //serv_FR.attach(SERVO_PIN_FR);
+  //serv_BR.attach(SERVO_PIN_BR);
+  //serv_FL.attach(SERVO_PIN_FL);
+  //serv_BL.attach(SERVO_PIN_BL);
+  serv_Teta.attach(SERVO_PIN_TETA);
+  serv_Phi.attach(SERVO_PIN_PHI);
+  serv_Gripper.attach(SERVO_PIN_GRIPPER);
 
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
@@ -128,15 +139,11 @@ void loop()
   if (!measurementReady){
     triggerUltrasound();
   }
-  
-  // if (!measurementReady){
-  //   triggerUltrasound();
-  // }
 
-  // if (measurementReady) {
-  //   measurementReady = false;
-  //   Serial.println(lastDistance);
-  // }
+  if (measurementReady) {
+    measurementReady = false;
+    Serial.println(lastDistance);
+  }
 
   // IMU :
 
@@ -169,7 +176,7 @@ void loop()
   }
 
 
-  delay(1);
+  delay(10);
 }
 
 // Création des fonctions de transmission de données : 
@@ -196,7 +203,7 @@ void read_data() //Confirmed works as intended
   }
 
 
-  // data_Servos[l_data_Serv - 1] = (int)(data_Servos[l_data_Serv - 1] * 3.937);   DEBUG   // Conversion pour le gripper du bras
+  // data_Servos[l_data_Serv - 1] = (int)(data_Servos[l_data_Serv - 1] * 3.937);    // Conversion pour le gripper du bras
 }
 
 void sendToNano(byte address, byte data[], int length) {
@@ -207,17 +214,16 @@ void sendToNano(byte address, byte data[], int length) {
 
 void sendWheelServosData()
 {
-  serv_FR.write(data_Servos[0]);
-  serv_BR.write(data_Servos[1]);
-  serv_FL.write(data_Servos[2]);
-  serv_BL.write(data_Servos[3]);
+  for (unsigned i = 0; i < 4; i++) {       
+    splitter.setPWM(i, 0, angleToPulse(data_Servos[i]));
+  }
 }
 
 void sendArmServosData()
 {
-  for (unsigned i = 4; i < l_data_Serv; i++) {          // Attention à changer pour le gripper (servira pour les connexions du bras)
-    splitter.setPWM(i, 0, angleToPulse(data_Servos[i]));
-  }
+  serv_Teta.write(data_Servos[4]);
+  serv_Phi.write(data_Servos[5]);
+  serv_Gripper.writeMicroseconds(int(1500+ data_Servos[6] * 3.937));
 }
 
 int angleToPulse(int ang) {                            //gets the angle in degree and returns the pulse width  

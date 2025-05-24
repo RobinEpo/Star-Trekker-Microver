@@ -97,7 +97,7 @@ while True:
     data_servos_b = [int(elem).to_bytes(1, byteorder='big', signed=False) for elem in data_servos]
     data_arm = [arm.teta + 90, arm.phi + 90]                            # shift nécessaire car calculs de -90° à 90° sur arm.py
     data_arm_b = [int(elem).to_bytes(1, byteorder='big', signed=False) for elem in data_arm]
-    placeholder = [speed_gripper]
+    placeholder = [speed_gripper.to_bytes(1, byteorder='big', signed=True)]
 
     ctrl_bytes =  b"".join(data_slaves_b + data_servos_b + data_arm_b + placeholder)
     udp_ctrl_sock.sendto(ctrl_bytes, (CONTROL_IP, CONTROL_PORT))

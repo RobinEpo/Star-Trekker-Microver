@@ -67,10 +67,13 @@ while True:
             if event.button == Bouton_A:       
                 arm.coude = not arm.coude
                 print("Bouton A pressé")
+            if event.button == Bouton_X:       
+                dir.mode_angles = not dir.mode_angles
+                print("Bouton X pressé")
                 
         if event.type == JOYBUTTONUP:
             if event.button == 1:       # Bouton B
-                B_Pressed = 0           # Stop boost (precision mode)
+                B_Pressed = 0           # Stop boost (slow mode)
                 print("Bouton B relâché")
             
     if B_Pressed:                          # Boost si on est en mode racing

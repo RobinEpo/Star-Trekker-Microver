@@ -5,14 +5,15 @@ LENGTH_1 = 21          # Valeur de test à changer (en cm)
 LENGTH_2 = LENGTH_1
 WIDTH = 30             # Valeur de test à changer (en cm)
 DELTA_WIDTH = 5
-MAX_ANGLE_RACING = 20 * m.pi / 180 # En radians direct (plus utile pour les calculs)
+MAX_ANGLE_RACING = 30 * m.pi / 180 # En radians direct (plus utile pour les calculs)
 MAX_ANGLE_PRECISION = m.pi / 2
 ANGLE_FRONT = 90        # A vérif (degrés)
 
 # Input states :
 rotation : bool = 0    # 1 si on tourne
 direction : bool = 0   # 0 = gauche / 1 = droite
-mode : bool = 0        # 0 = Precision / 1 = Race
+mode : bool = 0        # 0 = Slow / 1 = fast
+mode_angle : bool = 0        # 0 = Precision / 1 = Low
 x_joystick = 0         # On suppose de -1 à 1 --> Réajuster sinon
 Input_speed = 0
 
@@ -35,7 +36,7 @@ def Calculate_Radius(): # Rayon intérieur de courbure
     angle = 0
     
     # On cherche à avoir le rayon avec un angle qui varie linéairement :
-    if mode == 0 :      # Precision
+    if mode_angles == 0 :      # Precision
         angle = abs(x_joystick) * MAX_ANGLE_PRECISION
     else :              # Racing
         angle = abs(x_joystick) * MAX_ANGLE_RACING

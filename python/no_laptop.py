@@ -5,7 +5,7 @@ import direction as dir
 import arm
 import struct
 import time
-import constants
+from constants import *
 
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.05)     # '/dev/ttyUSB0' sur linux ; 'COM3' sur WINDOWS
 

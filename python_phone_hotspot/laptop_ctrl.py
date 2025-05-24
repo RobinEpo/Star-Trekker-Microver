@@ -68,7 +68,7 @@ while True:
                 arm.coude = not arm.coude
                 print("Bouton A pressé")
             if event.button == Bouton_X:       
-                dir.mode_angles = not dir.mode_angles
+                dir.mode_angle = not dir.mode_angle
                 print("Bouton X pressé")
                 
         if event.type == JOYBUTTONUP:

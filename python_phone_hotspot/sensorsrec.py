@@ -55,18 +55,18 @@ while True:
     # Optional: Show the image in OpenCV (debug)
     np_data = np.frombuffer(image_data, dtype=np.uint8)
     frame = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
-   # if frame is not None:
-    #    cv2.imshow("TCP Received", frame)
+    if frame is not None:
+        cv2.imshow("TCP Received", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
     # Step 4: Forward the header + image to Godot via UDP
-    udp_packet = header + image_data
-    if len(udp_packet) <= 65507:
-        udp_sock.sendto(udp_packet, (GODOT_IP, GODOT_PORT))
-        print("📤 Forwarded frame to Godot")
-    else:
-        print("⚠️ Packet too large for UDP")
+    # udp_packet = header + image_data
+    # if len(udp_packet) <= 65507:
+    #     udp_sock.sendto(udp_packet, (GODOT_IP, GODOT_PORT))
+    #     print("📤 Forwarded frame to Godot")
+    # else:
+    #     print("⚠️ Packet too large for UDP")
 
 conn.close()
 tcp_sock.close()

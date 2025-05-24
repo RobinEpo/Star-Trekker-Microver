@@ -8,16 +8,15 @@ from picamera2 import Picamera2
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.05)
 
 LAPTOP_IP = "10.113.193.45"  # Replace with your laptop's IP
-PORT = 5000
+VIDEO_PORT = 5000
+CTRL_PORT = 5001
 
-# Set up TCP socket and connect to laptop
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((LAPTOP_IP, PORT))
-print("o Connected to laptop")
+# Set up UDP socket for sending video (replaces TCP)
+video_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# Set up UDP socket to port 5001
+# Set up UDP socket to port 5001 for control
 ctrl_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-ctrl_sock.bind(("", 5001))
+ctrl_sock.bind(("", CTRL_PORT))
 ctrl_sock.settimeout(0.01)
 
 # Set up Picamera2
@@ -36,13 +35,11 @@ try:
     while True:
         try:
             new_data, addr = ctrl_sock.recvfrom(1024)
-            # data is a bytes object; expect len(data) == 13
             print("Received data length:", len(new_data))
             if len(new_data) != msg_length:
                 print(f"⚠️ Unexpected control packet size {len(new_data)}")
                 continue
 
-            # 3) Parse the 13 bytes into ints 0–255
             ctrl_values = list(new_data)
             if curr_data != ctrl_values:
                 curr_data = ctrl_values
@@ -53,28 +50,33 @@ try:
             pass
         
         frame = picam2.capture_array("main")
-        frame = cv2.resize(frame, (400, 300))
+        frame = cv2.resize(frame, (320, 240))  # Resize more to reduce UDP packet size
 
-        success, encoded = cv2.imencode(".jpg", frame)
+        success, encoded = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
         if not success:
             continue
 
         image_bytes = encoded.tobytes()
 
+        if len(image_bytes) > 65507:
+            print("⚠️ Frame too large for UDP")
+            continue
+
         # Header = float + int + JPEG length
-        header = struct.pack("<fI", 3.14, 42) #< means little endian, f means float, I means Int
+        header = struct.pack("<fI", 3.14, 42)
         length = struct.pack("<I", len(image_bytes))
 
-        # Send complete packet
-        sock.sendall(header + length + image_bytes)
+        packet = header + length + image_bytes
+
+        video_sock.sendto(packet, (LAPTOP_IP, VIDEO_PORT))
         print("->")
 
-        time.sleep(0.05)  # ~50 FPS
+        time.sleep(0.1)  # ~10 FPS
 
 except (KeyboardInterrupt, Exception):
     print("\n ! Stopped by user")
-    ser.write(bytes([0]*13))   # all zeros
+    ser.write(bytes([0]*13))
 finally:
     picam2.close()
-    sock.close()
-    picam2.close()
+    video_sock.close()
+    ctrl_sock.close()

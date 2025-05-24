@@ -5,7 +5,7 @@ import direction as dir
 import arm
 import struct
 import time
-import constants
+from constants import *
 
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.05)     # '/dev/ttyUSB0' sur linux ; 'COM3' sur WINDOWS
 
@@ -71,7 +71,7 @@ while True:
                 arm.coude = not arm.coude
                 print("Bouton A pressé")
             if event.button == Bouton_X:       
-                dir.mode_angles = not dir.mode_angles
+                dir.mode_angle = not dir.mode_angle
                 print("Bouton X pressé")
                 
         if event.type == JOYBUTTONUP:

@@ -36,7 +36,7 @@ def Calculate_Radius(): # Rayon intérieur de courbure
     angle = 0
     
     # On cherche à avoir le rayon avec un angle qui varie linéairement :
-    if mode_angles == 0 :      # Precision
+    if mode_angle == 0 :      # Precision
         angle = abs(x_joystick) * MAX_ANGLE_PRECISION
     else :              # Racing
         angle = abs(x_joystick) * MAX_ANGLE_RACING

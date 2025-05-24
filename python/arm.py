@@ -3,7 +3,7 @@ import numpy as np
 # Constantes principales: (à changer)
 
 L1 = 8 # en cm
-L2 = 16
+L2 = 15
 TETA_MAX = 90
 TETA_MIN = -90
 PHI_MIN = -90

@@ -28,6 +28,8 @@ pygame.joystick.init()
 joystick = pygame.joystick.Joystick(0)
 deadzone = 0.1
 
+arm.set_init_pos()
+
 while True:
     for event in pygame.event.get() :
         if event.type == JOYAXISMOTION :

@@ -49,11 +49,11 @@ while True:
             if event.axis == 2 and mode == 0:           #right trigger = event 5
                 speed_l = (int(-255*(event.value+1)/2))
             if event.axis == 5 and mode == 1:           #left trigger = event 4
-                speed_gripper_r = (event.value + 1)/2
-                if speed_gripper_r < 0:
+                speed_gripper_r = -(event.value + 1)/2
+                if speed_gripper_r > 0:
                     speed_gripper_r = 0
             if event.axis == 2 and mode == 1:           #right trigger = event 5
-                speed_gripper_l = -(event.value + 1)/2
+                speed_gripper_l = (event.value + 1)/2
                 if speed_gripper_l < 0:
                     speed_gripper_l = 0
             
